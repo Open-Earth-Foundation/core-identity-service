@@ -4,7 +4,23 @@ Identity provider for the CityCatalyst / GCoM Data Service platform. It owns
 credentials, two-factor authentication, sessions, and the OAuth 2.0 / OpenID
 Connect protocol, so that CityCatalyst and other apps log in through one service.
 
-Status: planning. No service code yet.
+Status: scaffold only. The app builds and serves a health endpoint. No identity
+code has been moved here yet.
+
+## Development
+
+Requires Node 22 (see `.nvmrc`).
+
+```bash
+npm install
+npm run dev        # http://localhost:3000
+npm run lint
+npm run typecheck
+npm run build
+```
+
+Health check: `GET /api/health/` returns `{"status":"ok"}`. The trailing slash
+matters because `trailingSlash` is on, to match CityCatalyst.
 
 ## Where this comes from
 
