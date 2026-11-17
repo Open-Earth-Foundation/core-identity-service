@@ -18,9 +18,11 @@ FROM base AS release
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
-RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
-COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
-USER nextjs
+# Fixed numeric ids, so Kubernetes can verify runAsNonRoot (it cannot resolve a
+# user given by name).
+RUN addgroup -S -g 1001 nodejs && adduser -S -u 1001 -G nodejs nextjs
+COPY --from=build --chown=1001:1001 /app/.next/standalone ./
+COPY --from=build --chown=1001:1001 /app/.next/static ./.next/static
+USER 1001:1001
 EXPOSE 3000
 CMD ["node", "server.js"]

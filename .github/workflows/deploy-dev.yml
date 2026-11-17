@@ -1,0 +1,63 @@
+name: Deploy to dev (manual)
+
+# DRAFT. Manual only, so nothing deploys by accident. It needs the EKS secrets
+# below, which are not set in this repository yet (CC-1282).
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to deploy, usually a commit SHA already pushed to GHCR"
+        required: true
+      namespace:
+        description: "Kubernetes namespace"
+        required: true
+        default: "default"
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to EKS dev
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_EKS_DEV_USER }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_EKS_DEV_USER }}
+      EKS_DEV_NAME: ${{ secrets.EKS_DEV_NAME }}
+      # Inputs go through env, not straight into the script, so a crafted value
+      # cannot inject shell commands.
+      IMAGE_TAG: ${{ inputs.image_tag }}
+      NAMESPACE: ${{ inputs.namespace }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check inputs and secrets
+        run: |
+          for name in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY EKS_DEV_NAME; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Secret for $name is not set in this repository."
+              exit 1
+            fi
+          done
+          if ! [[ "$IMAGE_TAG" =~ ^[A-Za-z0-9._-]+$ ]]; then
+            echo "::error::image_tag has unexpected characters."
+            exit 1
+          fi
+          if ! [[ "$NAMESPACE" =~ ^[a-z0-9-]+$ ]]; then
+            echo "::error::namespace has unexpected characters."
+            exit 1
+          fi
+
+      - name: Connect to the cluster
+        # Same region as the CityCatalyst dev deployment.
+        run: aws eks update-kubeconfig --name "$EKS_DEV_NAME" --region us-east-1
+
+      - name: Apply manifests
+        run: kubectl apply -f k8s/dev/ -n "$NAMESPACE"
+
+      - name: Roll out the requested image
+        run: |
+          kubectl set image deployment/core-identity \
+            core-identity="ghcr.io/open-earth-foundation/core-identity-service:${IMAGE_TAG}" \
+            -n "$NAMESPACE"
+          kubectl rollout status deployment/core-identity -n "$NAMESPACE" --timeout=180s

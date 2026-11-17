@@ -29,10 +29,25 @@ docker build --tag core-identity-service .
 docker run --rm -p 3000:3000 core-identity-service
 ```
 
-The image uses Next.js standalone output and runs as a non-root user. `.env`
-files are excluded from the build context, so configuration is passed in at
-runtime. CI (`.github/workflows/ci.yml`) runs lint, typecheck, build and a
-Docker build on pull requests. Deployment is not set up yet (CC-1282).
+The image uses Next.js standalone output and runs as a non-root user (uid
+1001). `.env` files are excluded from the build context, so configuration is
+passed in at runtime.
+
+## CI and deployment (draft, CC-1282)
+
+- `.github/workflows/ci.yml` runs lint, typecheck, build and a Docker build on
+  pull requests. Pushes to `develop` also publish the image to
+  `ghcr.io/open-earth-foundation/core-identity-service` as `:<sha>` and
+  `:latest`.
+- `k8s/dev/core-identity.yml` is a draft Deployment and Service with probes on
+  `/api/health/`. It has not been applied to any cluster.
+- `.github/workflows/deploy-dev.yml` deploys a chosen image tag to the dev
+  cluster. It is manual only and fails at the first step until the cluster
+  secrets (`AWS_ACCESS_KEY_ID_EKS_DEV_USER`, `AWS_SECRET_ACCESS_KEY_EKS_DEV_USER`,
+  `EKS_DEV_NAME`) are added to this repository.
+- Not decided yet: the namespace, the ingress paths on the shared origin, and
+  where the identity database runs. The dev ingress lives in the CityCatalyst
+  repository.
 
 ## Where this comes from
 
