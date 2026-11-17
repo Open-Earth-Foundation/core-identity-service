@@ -1,0 +1,73 @@
+# DRAFT dev manifests for core-identity-service. Not applied to any cluster.
+#
+# Open questions (see CC-1282):
+# - Namespace: omitted here. The deploy workflow passes one with -n, the same
+#   way CityCatalyst uses "default".
+# - Ingress: not included. The dev ingress is shared and lives in the
+#   CityCatalyst repo (k8s/cc-ingress.yml). Which paths this service owns is
+#   undecided.
+# - Database: no database settings yet. The health-only service does not use
+#   one. Add a Secret and env entries when the identity database exists.
+# - Image pull: assumes the GHCR package is readable by the cluster.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-identity
+  labels:
+    app: core-identity
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: core-identity
+  template:
+    metadata:
+      labels:
+        app: core-identity
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+      containers:
+        - name: core-identity
+          # The deploy workflow replaces this with the exact commit tag.
+          image: ghcr.io/open-earth-foundation/core-identity-service:latest
+          ports:
+            - containerPort: 3000
+          securityContext:
+            allowPrivilegeEscalation: false
+          # trailingSlash is on, so the path needs the trailing slash. Without
+          # it the probe gets a 308 redirect.
+          readinessProbe:
+            httpGet:
+              path: /api/health/
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health/
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: core-identity
+  labels:
+    app: core-identity
+spec:
+  type: ClusterIP
+  selector:
+    app: core-identity
+  ports:
+    - port: 3000
+      targetPort: 3000

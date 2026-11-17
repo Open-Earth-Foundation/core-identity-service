@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.github
+.env
+.env.*
+coverage
+*.log
+*.tsbuildinfo
+docs
+k8s
+Dockerfile
+docker-compose.yml
+README.md
