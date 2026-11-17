@@ -22,6 +22,18 @@ npm run build
 Health check: `GET /api/health/` returns `{"status":"ok"}`. The trailing slash
 matters because `trailingSlash` is on, to match CityCatalyst.
 
+## Docker
+
+```bash
+docker build --tag core-identity-service .
+docker run --rm -p 3000:3000 core-identity-service
+```
+
+The image uses Next.js standalone output and runs as a non-root user. `.env`
+files are excluded from the build context, so configuration is passed in at
+runtime. CI (`.github/workflows/ci.yml`) runs lint, typecheck, build and a
+Docker build on pull requests. Deployment is not set up yet (CC-1282).
+
 ## Where this comes from
 
 The service is extracted from the OAuth authorization server that lives inside
