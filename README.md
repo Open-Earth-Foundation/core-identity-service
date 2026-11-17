@@ -29,11 +29,14 @@ CityCatalyst. `User.user_id` is the same UUID as in CityCatalyst, so it is the
 OpenID `sub`.
 
 ```bash
-cp env.example .env
-docker compose up -d       # Postgres on localhost:5440
+cp env.example .env        # then fill in DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD
+docker compose up -d       # Postgres on localhost:5440, created with those values
 npm run db:migrate
 npm run db:migrate:undo    # undo the last migration
 ```
+
+The values are not committed. For local development any values work.
+`docker compose` stops with a clear message if they are blank.
 
 Tables: `User` (credentials and 2FA only), `OAuthClient`, `OAuthClientI18N`,
 `OAuthClientAuthz`, `AuthorizationCode`, `RefreshToken`, `SigningKey`.
