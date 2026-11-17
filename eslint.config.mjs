@@ -26,6 +26,14 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    // .cjs files are CommonJS (sequelize-cli config and migrations), so
+    // require() is the only valid syntax there.
+    files: ["**/*.cjs"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

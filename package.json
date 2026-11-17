@@ -13,19 +13,30 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "prettier": "prettier . --write"
+    "prettier": "prettier . --write",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:migrate:undo": "sequelize-cli db:migrate:undo",
+    "db:migrate:undo:all": "sequelize-cli db:migrate:undo:all",
+    "db:gen-migration": "sequelize-cli migration:generate --name",
+    "db:copy-from-citycatalyst": "tsx scripts/copy-from-citycatalyst.ts"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "next": "^16.4.3",
+    "pg": "^8.23.1",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "sequelize": "^6.37.8"
   },
   "devDependencies": {
     "@types/node": "24.10.1",
+    "@types/pg": "^8.23.1",
     "@types/react": "19.2.14",
     "eslint": "^10.7.0",
     "eslint-config-next": "^16.2.10",
     "prettier": "^3.9.6",
+    "sequelize-cli": "^6.6.5",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.3"
   }
 }

@@ -1,0 +1,19 @@
+# Local Postgres for the identity database. It listens on port 5440 so it does
+# not clash with a local CityCatalyst database (5432) or other dev databases.
+#
+#   docker compose up -d
+#   npm run db:migrate
+services:
+  identity-db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: core_identity
+      POSTGRES_PASSWORD: development
+      POSTGRES_DB: core_identity
+    ports:
+      - "5440:5432"
+    volumes:
+      - identity-db-data:/var/lib/postgresql/data
+
+volumes:
+  identity-db-data:
