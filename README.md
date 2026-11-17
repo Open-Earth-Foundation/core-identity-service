@@ -113,6 +113,9 @@ The plan, gap list, and decisions are in
 [`docs/core-identity-v0-extraction-plan.md`](./docs/core-identity-v0-extraction-plan.md).
 Read it before changing anything here.
 
+How the service is built (components, data model, flows, security, open
+decisions) is in [`docs/architecture.md`](./docs/architecture.md).
+
 ## Direction
 
 - Next.js for the MVP. The first goal is to extract the existing logic and check
