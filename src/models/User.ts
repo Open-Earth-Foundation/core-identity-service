@@ -11,7 +11,10 @@ export interface UserAttributes {
   passwordHash?: string | null;
   twoFactorEnabled: boolean;
   twoFactorSecret?: string | null;
+  /** Key version used to seal `twoFactorSecret`, or null if plaintext legacy. */
+  twoFactorSecretKeyVersion?: number | null;
   twoFactorRecoveryHashes: string[];
+  emailVerifiedAt?: Date | null;
   lastActiveAt?: Date | null;
   anonymizedAt?: Date | null;
   created?: Date;
@@ -25,7 +28,9 @@ export type UserCreationAttributes = Optional<
   | "passwordHash"
   | "twoFactorEnabled"
   | "twoFactorSecret"
+  | "twoFactorSecretKeyVersion"
   | "twoFactorRecoveryHashes"
+  | "emailVerifiedAt"
   | "lastActiveAt"
   | "anonymizedAt"
   | "created"
@@ -42,7 +47,9 @@ export class User
   declare passwordHash: string | null;
   declare twoFactorEnabled: boolean;
   declare twoFactorSecret: string | null;
+  declare twoFactorSecretKeyVersion: number | null;
   declare twoFactorRecoveryHashes: string[];
+  declare emailVerifiedAt: Date | null;
   declare lastActiveAt: Date | null;
   declare anonymizedAt: Date | null;
   declare created: Date;
@@ -75,11 +82,21 @@ export class User
           allowNull: true,
           field: "two_factor_secret",
         },
+        twoFactorSecretKeyVersion: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+          field: "two_factor_secret_key_version",
+        },
         twoFactorRecoveryHashes: {
           type: DataTypes.ARRAY(DataTypes.TEXT),
           allowNull: false,
           defaultValue: [],
           field: "two_factor_recovery_hashes",
+        },
+        emailVerifiedAt: {
+          type: DataTypes.DATE,
+          allowNull: true,
+          field: "email_verified_at",
         },
         lastActiveAt: {
           type: DataTypes.DATE,

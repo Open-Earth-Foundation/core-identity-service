@@ -32,6 +32,21 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Test
+        run: npm test
+        env:
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_NAME: core_identity_test
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: postgres
+          DATABASE_USE_SSL: "false"
+          IDENTITY_ENCRYPTION_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          PUBLIC_ORIGIN: http://localhost:3000
+          CSRF_SECRET: ci-csrf-secret
+        # DB-backed tests skip when credentials are unavailable; service unit
+        # paths still exercise non-DB branches. Full DB coverage runs locally.
+
       - name: Build
         run: npm run build
 

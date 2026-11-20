@@ -13,6 +13,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
     "prettier": "prettier . --write",
     "db:migrate": "sequelize-cli db:migrate",
     "db:migrate:undo": "sequelize-cli db:migrate:undo",
@@ -21,21 +22,35 @@
     "db:copy-from-citycatalyst": "tsx scripts/copy-from-citycatalyst.ts"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
+    "http-errors": "^2.0.1",
     "next": "^16.4.3",
+    "nodemailer": "^10.6.1",
+    "otplib": "^13.6.0",
     "pg": "^8.23.1",
+    "pg-hstore": "^2.3.4",
+    "qrcode": "^1.5.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "sequelize": "^6.37.8"
+    "sequelize": "^6.37.8",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/http-errors": "^2.0.5",
+    "@types/jest": "^30.0.0",
     "@types/node": "24.10.1",
+    "@types/nodemailer": "^8.0.2",
     "@types/pg": "^8.23.1",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "19.2.14",
     "eslint": "^10.7.0",
     "eslint-config-next": "^16.2.10",
+    "jest": "^30.5.2",
     "prettier": "^3.9.6",
     "sequelize-cli": "^6.6.5",
+    "ts-jest": "^29.4.15",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3"
   }
