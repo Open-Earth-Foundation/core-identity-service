@@ -6,6 +6,24 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthCard, AuthSubmit, formValues, postJson } from "@/components/AuthCard";
 
+/** Offers a plain-text download so codes can be stored offline. */
+function downloadRecoveryCodes(codes: string[]) {
+  const body = [
+    "CityCatalyst Identity — two-factor recovery codes",
+    "Each code can be used once. Store this file somewhere safe.",
+    "",
+    ...codes,
+    "",
+  ].join("\n");
+  const blob = new Blob([body], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "citycatalyst-recovery-codes.txt";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function AccountSecurityPage() {
   const router = useRouter();
   const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null);
@@ -30,6 +48,7 @@ export default function AccountSecurityPage() {
               className="auth-form"
               onSubmit={async (event) => {
                 event.preventDefault();
+                const form = event.currentTarget;
                 setError("");
                 setNotice("");
                 setBusy(true);
@@ -47,7 +66,7 @@ export default function AccountSecurityPage() {
                   setError(err?.message || "Could not change password.");
                   return;
                 }
-                event.currentTarget.reset();
+                form.reset();
                 setNotice("Password changed.");
               }}
             >
@@ -147,17 +166,18 @@ export default function AccountSecurityPage() {
               ) : null}
 
               {recoveryCodes ? (
-                <div>
+                <div className="auth-form">
                   <p className="auth-lead">
-                    Save these recovery codes. They are shown once.
+                    Download your recovery codes now. They will not be shown
+                    again.
                   </p>
-                  <ul className="auth-recovery-list">
-                    {recoveryCodes.map((code) => (
-                      <li key={code}>
-                        <code>{code}</code>
-                      </li>
-                    ))}
-                  </ul>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => downloadRecoveryCodes(recoveryCodes)}
+                  >
+                    Download as text file
+                  </Button>
                 </div>
               ) : null}
 

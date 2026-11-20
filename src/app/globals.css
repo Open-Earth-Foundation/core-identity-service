@@ -71,9 +71,3 @@
   margin: var(--gds-space-4) auto;
   display: block;
 }
-
-.auth-recovery-list {
-  margin: var(--gds-space-3) 0 0;
-  padding-left: var(--gds-space-5);
-  font: var(--gds-type-code-md);
-}
