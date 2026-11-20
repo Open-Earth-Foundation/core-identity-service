@@ -1,9 +1,10 @@
 "use client";
 
+import { TextField } from "@oef/gds-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { AuthCard, formValues, postJson } from "@/components/AuthCard";
+import { AuthCard, AuthSubmit, formValues, postJson } from "@/components/AuthCard";
 
 function ResetForm() {
   const router = useRouter();
@@ -17,6 +18,7 @@ function ResetForm() {
     >
       {({ csrfToken, setError, busy, setBusy }) => (
         <form
+          className="auth-form"
           onSubmit={async (event) => {
             event.preventDefault();
             setError("");
@@ -37,17 +39,16 @@ function ResetForm() {
           }}
         >
           <input type="hidden" name="token" value={token} />
-          <label htmlFor="newPassword">New password</label>
-          <input
-            id="newPassword"
+          <TextField
+            label="New password"
             name="newPassword"
             type="password"
             required
             autoComplete="new-password"
           />
-          <button type="submit" disabled={busy || !csrfToken || !token}>
+          <AuthSubmit busy={busy} disabled={!csrfToken || !token}>
             {busy ? "Saving…" : "Save password"}
-          </button>
+          </AuthSubmit>
         </form>
       )}
     </AuthCard>
@@ -56,7 +57,13 @@ function ResetForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="shell">Loading…</div>}>
+    <Suspense
+      fallback={
+        <div className="auth-shell">
+          <p className="auth-lead">Loading…</p>
+        </div>
+      }
+    >
       <ResetForm />
     </Suspense>
   );

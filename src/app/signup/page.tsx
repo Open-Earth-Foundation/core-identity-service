@@ -1,11 +1,14 @@
 "use client";
 
+import { Checkbox, TextField } from "@oef/gds-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AuthCard, formValues, postJson } from "@/components/AuthCard";
+import { useState } from "react";
+import { AuthCard, AuthSubmit, formValues, postJson } from "@/components/AuthCard";
 
 export default function SignupPage() {
   const router = useRouter();
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   return (
     <AuthCard
@@ -15,9 +18,14 @@ export default function SignupPage() {
     >
       {({ csrfToken, setError, busy, setBusy }) => (
         <form
+          className="auth-form"
           onSubmit={async (event) => {
             event.preventDefault();
             setError("");
+            if (!acceptTerms) {
+              setError("Accept the terms of use to continue.");
+              return;
+            }
             setBusy(true);
             const values = formValues(event);
             const result = await postJson("/api/auth/register/", {
@@ -25,7 +33,7 @@ export default function SignupPage() {
               email: values.email,
               password: values.password,
               confirmPassword: values.confirmPassword,
-              acceptTerms: values.acceptTerms === "on",
+              acceptTerms: true,
               csrfToken,
             });
             if (!result.ok) {
@@ -37,38 +45,38 @@ export default function SignupPage() {
             router.push("/check-email/");
           }}
         >
-          <label htmlFor="name">Name</label>
-          <input id="name" name="name" type="text" required />
-
-          <label htmlFor="email">Email</label>
-          <input id="email" name="email" type="email" required autoComplete="email" />
-
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
+          <TextField label="Name" name="name" type="text" required />
+          <TextField
+            label="Email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+          />
+          <TextField
+            label="Password"
             name="password"
             type="password"
             required
             autoComplete="new-password"
+            description="At least 4 characters with upper, lower, and a number"
           />
-
-          <label htmlFor="confirmPassword">Confirm password</label>
-          <input
-            id="confirmPassword"
+          <TextField
+            label="Confirm password"
             name="confirmPassword"
             type="password"
             required
             autoComplete="new-password"
           />
-
-          <label className="check">
-            <input name="acceptTerms" type="checkbox" required />
-            <span>I accept the terms of use</span>
-          </label>
-
-          <button type="submit" disabled={busy || !csrfToken}>
+          <Checkbox
+            checked={acceptTerms}
+            onCheckedChange={(checked) => setAcceptTerms(checked === true)}
+          >
+            I accept the terms of use
+          </Checkbox>
+          <AuthSubmit busy={busy} disabled={!csrfToken}>
             {busy ? "Creating…" : "Create account"}
-          </button>
+          </AuthSubmit>
         </form>
       )}
     </AuthCard>

@@ -1,8 +1,9 @@
 "use client";
 
+import { TextField } from "@oef/gds-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AuthCard, formValues, postJson } from "@/components/AuthCard";
+import { AuthCard, AuthSubmit, formValues, postJson } from "@/components/AuthCard";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function ForgotPasswordPage() {
     >
       {({ csrfToken, setError, busy, setBusy }) => (
         <form
+          className="auth-form"
           onSubmit={async (event) => {
             event.preventDefault();
             setError("");
@@ -33,11 +35,16 @@ export default function ForgotPasswordPage() {
             router.push("/check-email/");
           }}
         >
-          <label htmlFor="email">Email</label>
-          <input id="email" name="email" type="email" required autoComplete="email" />
-          <button type="submit" disabled={busy || !csrfToken}>
+          <TextField
+            label="Email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+          />
+          <AuthSubmit busy={busy} disabled={!csrfToken}>
             {busy ? "Sending…" : "Send reset link"}
-          </button>
+          </AuthSubmit>
         </form>
       )}
     </AuthCard>

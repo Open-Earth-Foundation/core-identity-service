@@ -22,6 +22,9 @@
     "db:copy-from-citycatalyst": "tsx scripts/copy-from-citycatalyst.ts"
   },
   "dependencies": {
+    "@base-ui/react": "^1.9.0",
+    "@oef/gds-react": "file:vendor/@oef/gds-react",
+    "@oef/gds-tokens": "file:vendor/@oef/gds-tokens",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
     "http-errors": "^2.0.1",

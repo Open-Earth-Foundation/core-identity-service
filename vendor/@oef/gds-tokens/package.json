@@ -1,0 +1,18 @@
+{
+  "name": "@oef/gds-tokens",
+  "version": "0.1.0",
+  "description": "Vendored GDS tokens (v0.1.0). Replace with GitHub Packages when published.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": ["*.css"],
+  "files": ["dist"],
+  "main": "./dist/tokens.js",
+  "types": "./dist/tokens.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/tokens.d.ts",
+      "import": "./dist/tokens.js"
+    },
+    "./css": "./dist/variables.css"
+  }
+}

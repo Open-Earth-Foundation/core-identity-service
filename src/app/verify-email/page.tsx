@@ -1,5 +1,6 @@
 "use client";
 
+import { Alert, Card } from "@oef/gds-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -9,6 +10,9 @@ function Verify() {
   const token = params.get("token") || "";
   const [message, setMessage] = useState(
     token ? "Verifying…" : "Missing verification token.",
+  );
+  const [kind, setKind] = useState<"info" | "good" | "critical">(
+    token ? "info" : "critical",
   );
 
   useEffect(() => {
@@ -20,16 +24,21 @@ function Verify() {
       .then(async (res) => {
         if (cancelled) return;
         if (res.ok) {
+          setKind("good");
           setMessage("Email verified. You can sign in.");
           return;
         }
         const data = (await res.json().catch(() => ({}))) as {
           error?: { message?: string };
         };
+        setKind("critical");
         setMessage(data.error?.message || "Verification failed.");
       })
       .catch(() => {
-        if (!cancelled) setMessage("Verification failed.");
+        if (!cancelled) {
+          setKind("critical");
+          setMessage("Verification failed.");
+        }
       });
     return () => {
       cancelled = true;
@@ -37,21 +46,33 @@ function Verify() {
   }, [token]);
 
   return (
-    <div className="shell">
-      <div className="card">
-        <h1>Email verification</h1>
-        <p className="lead">{message}</p>
-        <div className="links">
-          <Link href="/login/">Sign in</Link>
-        </div>
-      </div>
+    <div className="auth-shell">
+      <Card
+        className="auth-card"
+        elevated
+        eyebrow="CityCatalyst Identity"
+        title="Email verification"
+        footer={
+          <div className="auth-footer">
+            <Link href="/login/">Sign in</Link>
+          </div>
+        }
+      >
+        <Alert kind={kind} title={message} />
+      </Card>
     </div>
   );
 }
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<div className="shell">Loading…</div>}>
+    <Suspense
+      fallback={
+        <div className="auth-shell">
+          <p className="auth-lead">Loading…</p>
+        </div>
+      }
+    >
       <Verify />
     </Suspense>
   );

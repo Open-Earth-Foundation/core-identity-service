@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import "@oef/gds-tokens/css";
+import "@oef/gds-react/styles.css";
 import "./globals.css";
 
 export const metadata = {

@@ -27,9 +27,16 @@ npm run build
 Health check: `GET /api/health/` returns `{"status":"ok"}`. The trailing slash
 matters because `trailingSlash` is on, to match CityCatalyst.
 
+### Design system (GDS)
+
+Auth UI uses the [GDS design system](https://open-earth-foundation.github.io/gds-ds/?path=/story/overview--welcome)
+(`@oef/gds-tokens`, `@oef/gds-react`). Packages are not on a registry yet, so
+built `v0.1.0` artifacts are vendored under `vendor/@oef/` (see
+`vendor/README.md`). Swap to GitHub Packages when they publish.
+
 ### Auth locally (CC-1279)
 
-Pages (English, functional HTML/CSS — not a Chakra port):
+Pages (English, GDS components — not a Chakra port):
 
 | Path | Purpose |
 |------|---------|

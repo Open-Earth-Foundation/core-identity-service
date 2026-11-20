@@ -1,5 +1,6 @@
 "use client";
 
+import { Alert, Button, Card } from "@oef/gds-react";
 import { FormEvent, ReactNode, useEffect, useState } from "react";
 
 type Props = {
@@ -14,7 +15,7 @@ type Props = {
   footer?: ReactNode;
 };
 
-/** Loads a CSRF token and wraps a simple auth form card. */
+/** Loads a CSRF token and wraps auth forms in a GDS Card. */
 export function AuthCard({ title, lead, children, footer }: Props) {
   const [csrfToken, setCsrfToken] = useState("");
   const [error, setError] = useState("");
@@ -26,18 +27,26 @@ export function AuthCard({ title, lead, children, footer }: Props) {
       .then((data: { csrfToken?: string }) => {
         if (data.csrfToken) setCsrfToken(data.csrfToken);
       })
-      .catch(() => setError("Could not prepare the form. Reload and try again."));
+      .catch(() =>
+        setError("Could not prepare the form. Reload and try again."),
+      );
   }, []);
 
   return (
-    <div className="shell">
-      <div className="card">
-        <h1>{title}</h1>
-        {lead ? <p className="lead">{lead}</p> : null}
-        {error ? <p className="error">{error}</p> : null}
+    <div className="auth-shell">
+      <Card
+        className="auth-card"
+        elevated
+        eyebrow="CityCatalyst Identity"
+        title={title}
+        footer={footer ? <div className="auth-footer">{footer}</div> : undefined}
+      >
+        {lead ? <p className="auth-lead">{lead}</p> : null}
+        {error ? (
+          <Alert kind="critical" title={error} className="auth-alert" />
+        ) : null}
         {children({ csrfToken, setError, busy, setBusy })}
-        {footer ? <div className="links">{footer}</div> : null}
-      </div>
+      </Card>
     </div>
   );
 }
@@ -63,4 +72,20 @@ export function formValues(event: FormEvent<HTMLFormElement>) {
     if (typeof value === "string") out[key] = value;
   }
   return out;
+}
+
+export function AuthSubmit({
+  busy,
+  disabled,
+  children,
+}: {
+  busy: boolean;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <Button type="submit" disabled={busy || disabled} className="auth-submit">
+      {children}
+    </Button>
+  );
 }

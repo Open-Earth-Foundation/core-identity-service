@@ -1,8 +1,9 @@
 "use client";
 
+import { TextField } from "@oef/gds-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AuthCard, formValues, postJson } from "@/components/AuthCard";
+import { AuthCard, AuthSubmit, formValues, postJson } from "@/components/AuthCard";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function LoginPage() {
     >
       {({ csrfToken, setError, busy, setBusy }) => (
         <form
+          className="auth-form"
           onSubmit={async (event) => {
             event.preventDefault();
             setError("");
@@ -56,24 +58,30 @@ export default function LoginPage() {
             }
           }}
         >
-          <label htmlFor="email">Email</label>
-          <input id="email" name="email" type="email" required autoComplete="username" />
-
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
+          <TextField
+            label="Email"
+            name="email"
+            type="email"
+            required
+            autoComplete="username"
+          />
+          <TextField
+            label="Password"
             name="password"
             type="password"
             required
             autoComplete="current-password"
           />
-
-          <label htmlFor="securityToken">Authenticator or recovery code (if enabled)</label>
-          <input id="securityToken" name="securityToken" type="text" autoComplete="one-time-code" />
-
-          <button type="submit" disabled={busy || !csrfToken}>
+          <TextField
+            label="Authenticator or recovery code"
+            name="securityToken"
+            type="text"
+            autoComplete="one-time-code"
+            description="Only if two-factor authentication is enabled"
+          />
+          <AuthSubmit busy={busy} disabled={!csrfToken}>
             {busy ? "Signing in…" : "Sign in"}
-          </button>
+          </AuthSubmit>
         </form>
       )}
     </AuthCard>
