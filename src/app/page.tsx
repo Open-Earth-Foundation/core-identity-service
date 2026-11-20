@@ -1,10 +1,32 @@
-// Placeholder landing page. The service has no UI until login and consent
-// are moved here from CityCatalyst (see docs/core-identity-v0-extraction-plan.md).
+"use client";
+
+import { Button, Card } from "@oef/gds-react";
+import Link from "next/link";
+
 export default function HomePage() {
   return (
-    <main>
-      <h1>core-identity-service</h1>
-      <p>Identity provider for CityCatalyst. Nothing to see here yet.</p>
-    </main>
+    <div className="auth-shell">
+      <Card
+        className="auth-card"
+        elevated
+        eyebrow="CityCatalyst Identity"
+        title="Sign in to continue"
+        footer={
+          <div className="auth-footer">
+            <Link href="/signup/">Create an account</Link>
+          </div>
+        }
+      >
+        <p className="auth-lead">
+          Credential login, 2FA, and account flows for the GCoM Digital Service.
+        </p>
+        <Button
+          className="auth-submit"
+          render={<Link href="/login/" />}
+        >
+          Sign in
+        </Button>
+      </Card>
+    </div>
   );
 }

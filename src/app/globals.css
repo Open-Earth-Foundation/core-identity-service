@@ -1,0 +1,73 @@
+/* App-only layout. Visual system comes from @oef/gds-tokens and @oef/gds-react. */
+
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gds-space-6);
+  background: var(--gds-color-surface-subtle);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 28rem;
+}
+
+.auth-card.auth-card--wide {
+  max-width: 36rem;
+}
+
+.auth-lead {
+  margin: 0 0 var(--gds-space-4);
+  color: var(--gds-color-text-secondary);
+  font: var(--gds-type-text-md);
+}
+
+.auth-alert {
+  margin-bottom: var(--gds-space-4);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gds-space-4);
+}
+
+.auth-form + .auth-form,
+.auth-section + .auth-section {
+  margin-top: var(--gds-space-8);
+}
+
+.auth-section-title {
+  margin: 0 0 var(--gds-space-3);
+  font: var(--gds-type-display-sm);
+  color: var(--gds-color-text-primary);
+}
+
+.auth-submit {
+  width: 100%;
+}
+
+.auth-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gds-space-3);
+  font: var(--gds-type-text-sm);
+}
+
+.auth-footer a {
+  color: var(--gds-color-text-link);
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.auth-qr {
+  width: 100%;
+  max-width: 14rem;
+  margin: var(--gds-space-4) auto;
+  display: block;
+}

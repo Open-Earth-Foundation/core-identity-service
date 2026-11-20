@@ -5,6 +5,8 @@ const nextConfig = {
   // Build a self-contained server in .next/standalone so the Docker image does
   // not need the full node_modules.
   output: "standalone",
+  // Vendored GDS packages ship as ESM from file: deps; transpile for Next.
+  transpilePackages: ["@oef/gds-react", "@oef/gds-tokens"],
 };
 
 export default nextConfig;

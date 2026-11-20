@@ -4,8 +4,9 @@ Identity provider for the CityCatalyst / GCoM Data Service platform. It owns
 credentials, two-factor authentication, sessions, and the OAuth 2.0 / OpenID
 Connect protocol, so that CityCatalyst and other apps log in through one service.
 
-Status: scaffold plus the database schema. The app builds and serves a health
-endpoint. No identity logic has been moved here yet.
+Status: credential login, registration, password reset/change, email verify,
+2FA setup/verify/disable, and opaque OP sessions are implemented (CC-1279).
+OAuth authorize/token/consent lands in a later ticket (CC-1280).
 
 ## Development
 
@@ -13,14 +14,71 @@ Requires Node 22 (see `.nvmrc`).
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
+cp env.example .env   # fill DATABASE_* and IDENTITY_ENCRYPTION_KEY
+docker compose up -d  # Postgres on localhost:5440
+npm run db:migrate
+npm run dev           # http://localhost:3000
 npm run lint
 npm run typecheck
+npm test
 npm run build
 ```
 
 Health check: `GET /api/health/` returns `{"status":"ok"}`. The trailing slash
 matters because `trailingSlash` is on, to match CityCatalyst.
+
+### Design system (GDS)
+
+Auth UI uses the [GDS design system](https://open-earth-foundation.github.io/gds-ds/?path=/story/overview--welcome)
+(`@oef/gds-tokens`, `@oef/gds-react`). Packages are not on a registry yet, so
+built `v0.1.0` artifacts are vendored under `vendor/@oef/` (see
+`vendor/README.md`). Swap to GitHub Packages when they publish.
+
+### Auth locally (CC-1279)
+
+Pages (English, GDS components — not a Chakra port):
+
+| Path | Purpose |
+|------|---------|
+| `/login/` | Sign in (password + optional TOTP/recovery code) |
+| `/signup/` | Register and send verify email |
+| `/forgot-password/` | Enumeration-safe reset email |
+| `/reset-password/?token=…` | Consume reset `EmailToken` |
+| `/verify-email/?token=…` | Consume verify `EmailToken` |
+| `/check-email/` | “Check your inbox” interstitial |
+| `/reset-successful/` | After a successful reset |
+| `/account/security/` | Change password and manage 2FA |
+
+API surface under `/api/auth/` (see `docs/architecture.md` §4.1): login, logout,
+register, password forgot/reset/change, email verify, 2FA setup/verify/disable/
+status, CSRF issue.
+
+Session cookie `op_session` is HttpOnly, SameSite=Lax, Secure in production. Only
+the SHA-256 hash is stored in `Session`. CSRF uses cookie `op_csrf` + form token.
+
+### Env vars for auth
+
+| Variable | Required | Notes |
+|----------|----------|-------|
+| `DATABASE_*` | yes | Identity Postgres (see below) |
+| `PUBLIC_ORIGIN` | yes | Base URL for verify/reset links (no trailing slash) |
+| `IDENTITY_ENCRYPTION_KEY` | yes | 32-byte key, base64 — seals TOTP secrets (AES-256-GCM) |
+| `CSRF_SECRET` | recommended | HMAC secret for CSRF tokens |
+| `TOTP_ISSUER` | optional | Label in authenticator apps |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` / `SMTP_FROM` | optional | When unset, mail goes to an in-memory sink and is logged |
+
+Generate an encryption key:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+`RESET_TOKEN_SECRET` is **not** used — reset and verify use single-use
+`EmailToken` rows. bcrypt cost is **12** everywhere; passwords longer than 72
+bytes are rejected.
+
+Login is rate-limited to **5 attempts per email per 15 minutes** via
+`LoginRateLimit`.
 
 ## Database
 
@@ -38,11 +96,13 @@ npm run db:migrate:undo    # undo the last migration
 The values are not committed. For local development any values work.
 `docker compose` stops with a clear message if they are blank.
 
-Tables: `User` (credentials and 2FA only), `OAuthClient`, `OAuthClientI18N`,
-`OAuthClientAuthz`, `AuthorizationCode`, `RefreshToken`, `SigningKey`.
-Authorization codes and refresh tokens are stored as SHA-256 hashes. The
-private signing key is never stored in the database. `SigningKey` holds only
-the public half for the JWKS.
+Tables: `User` (credentials and 2FA only), `Session`, `EmailToken`,
+`LoginRateLimit`, `OAuthClient`, `OAuthClientI18N`, `OAuthClientAuthz`,
+`AuthorizationCode`, `RefreshToken`, `SigningKey`.
+Authorization codes, refresh tokens, and session/email tokens are stored as
+SHA-256 hashes. The private signing key is never stored in the database.
+`SigningKey` holds only the public half for the JWKS. TOTP secrets are sealed
+with AES-256-GCM when written through this service.
 
 Models are in `src/models`. Use them through `db`:
 
@@ -89,8 +149,8 @@ passed in at runtime.
 
 ## CI and deployment (draft, CC-1282)
 
-- `.github/workflows/ci.yml` runs lint, typecheck, build and a Docker build on
-  pull requests. Pushes to `develop` also publish the image to
+- `.github/workflows/ci.yml` runs lint, typecheck, test, build and a Docker
+  build on pull requests. Pushes to `develop` also publish the image to
   `ghcr.io/open-earth-foundation/core-identity-service` as `:<sha>` and
   `:latest`.
 - `k8s/dev/core-identity.yml` is a draft Deployment and Service with probes on

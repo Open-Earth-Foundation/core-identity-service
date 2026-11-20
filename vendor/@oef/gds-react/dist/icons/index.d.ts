@@ -1,0 +1,10 @@
+import { SVGProps } from 'react';
+type IconProps = SVGProps<SVGSVGElement>;
+export declare const CheckIcon: (p: IconProps) => import('react').JSX.Element;
+export declare const ChevronDownIcon: (p: IconProps) => import('react').JSX.Element;
+export declare const CloseIcon: (p: IconProps) => import('react').JSX.Element;
+export declare const InfoIcon: (p: IconProps) => import('react').JSX.Element;
+export declare const WarningIcon: (p: IconProps) => import('react').JSX.Element;
+export declare const GoodIcon: (p: IconProps) => import('react').JSX.Element;
+export declare const CriticalIcon: (p: IconProps) => import('react').JSX.Element;
+export {};
