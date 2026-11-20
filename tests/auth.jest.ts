@@ -11,14 +11,22 @@ import MailService, { mailSink } from "@/backend/MailService";
 import RateLimitService from "@/backend/RateLimitService";
 import SessionService from "@/backend/SessionService";
 import TwoFactorService from "@/backend/TwoFactorService";
-import { hashPassword } from "@/lib/password";
+import { assertPasswordPolicy, hashPassword } from "@/lib/password";
 import { sha256Hex } from "@/lib/crypto";
 
-const hasDb = Boolean(
+const hasDbCredentials = Boolean(
   process.env.DATABASE_NAME && process.env.DATABASE_USER,
 );
 
-const describeDb = hasDb ? describe : describe.skip;
+const describeDb = hasDbCredentials ? describe : describe.skip;
+
+describe("password policy (no DB)", () => {
+  it("rejects passwords longer than 72 bytes", () => {
+    expect(() => assertPasswordPolicy("Aa1" + "x".repeat(80))).toThrow(
+      /at most 72 bytes/,
+    );
+  });
+});
 
 describeDb("AuthService characterization (CC-1279)", () => {
   const suffix = randomUUID().slice(0, 8);
@@ -71,7 +79,7 @@ describeDb("AuthService characterization (CC-1279)", () => {
     ).rejects.toMatchObject({ statusCode: 409 });
   });
 
-  it("rejects passwords longer than 72 bytes", async () => {
+  it("rejects passwords longer than 72 bytes via register", async () => {
     await expect(
       AuthService.register({
         name: "Long",
