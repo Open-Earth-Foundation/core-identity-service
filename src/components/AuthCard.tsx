@@ -22,14 +22,23 @@ export function AuthCard({ title, lead, children, footer }: Props) {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    void fetch("/api/auth/csrf/", { credentials: "include" })
+    // Abort in-flight CSRF fetches on unmount. React Strict Mode remounts this
+    // card; a late Set-Cookie from the first request would otherwise overwrite
+    // op_csrf while React state still holds the second token → 403 on login.
+    const ac = new AbortController();
+    void fetch("/api/auth/csrf/", {
+      credentials: "include",
+      signal: ac.signal,
+    })
       .then((r) => r.json())
       .then((data: { csrfToken?: string }) => {
         if (data.csrfToken) setCsrfToken(data.csrfToken);
       })
-      .catch(() =>
-        setError("Could not prepare the form. Reload and try again."),
-      );
+      .catch((err: unknown) => {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        setError("Could not prepare the form. Reload and try again.");
+      });
+    return () => ac.abort();
   }, []);
 
   return (
