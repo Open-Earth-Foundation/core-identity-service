@@ -9,7 +9,7 @@ export default function ResetSuccessfulPage() {
       <Card
         className="auth-card"
         elevated
-        eyebrow="CityCatalyst Identity"
+        eyebrow="OpenEarth Identity"
         title="Password updated"
         footer={
           <div className="auth-footer">

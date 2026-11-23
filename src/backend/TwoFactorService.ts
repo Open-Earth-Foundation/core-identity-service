@@ -13,7 +13,7 @@ export default class TwoFactorService {
     const secret = generateSecret();
     const otpAuthUrl = generateURI({
       label: email,
-      issuer: process.env.TOTP_ISSUER || "CityCatalyst Identity",
+      issuer: process.env.TOTP_ISSUER || "OpenEarth Identity",
       secret,
     });
     return { secret, otpAuthUrl };

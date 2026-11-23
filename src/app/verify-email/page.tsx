@@ -50,7 +50,7 @@ function Verify() {
       <Card
         className="auth-card"
         elevated
-        eyebrow="CityCatalyst Identity"
+        eyebrow="OpenEarth Identity"
         title="Email verification"
         footer={
           <div className="auth-footer">

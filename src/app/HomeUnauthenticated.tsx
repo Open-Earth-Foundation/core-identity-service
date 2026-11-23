@@ -9,7 +9,7 @@ export function HomeUnauthenticated() {
       <Card
         className="auth-card"
         elevated
-        eyebrow="CityCatalyst Identity"
+        eyebrow="OpenEarth Identity"
         title="Sign in to continue"
         footer={
           <div className="auth-footer">

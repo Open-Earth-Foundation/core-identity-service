@@ -37,7 +37,7 @@ export function AuthCard({ title, lead, children, footer }: Props) {
       <Card
         className="auth-card"
         elevated
-        eyebrow="CityCatalyst Identity"
+        eyebrow="OpenEarth Identity"
         title={title}
         footer={footer ? <div className="auth-footer">{footer}</div> : undefined}
       >

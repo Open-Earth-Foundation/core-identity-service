@@ -8,7 +8,7 @@ import { AuthCard, AuthSubmit, formValues, postJson } from "@/components/AuthCar
 /** Offers a plain-text download so codes can be stored offline. */
 function downloadRecoveryCodes(codes: string[]) {
   const body = [
-    "CityCatalyst Identity — two-factor recovery codes",
+    "OpenEarth Identity — two-factor recovery codes",
     "Each code can be used once. Store this file somewhere safe.",
     "",
     ...codes,
