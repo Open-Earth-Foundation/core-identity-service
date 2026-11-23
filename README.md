@@ -6,7 +6,8 @@ Connect protocol, so that CityCatalyst and other apps log in through one service
 
 Status: credential login, registration, password reset/change, email verify,
 2FA setup/verify/disable, and opaque OP sessions are implemented (CC-1279).
-OAuth authorize/token/consent lands in a later ticket (CC-1280).
+The OAuth protocol core (discovery, JWKS, authorize, token, userinfo, revoke,
+introspect, consent, client admin, grants) is implemented (CC-1280).
 
 ## Development
 
@@ -80,6 +81,36 @@ bytes are rejected.
 Login is rate-limited to **5 attempts per email per 15 minutes** via
 `LoginRateLimit`.
 
+### OAuth / OpenID Connect (CC-1280)
+
+| Path | Purpose |
+|------|---------|
+| `/.well-known/openid-configuration/`, `/.well-known/oauth-authorization-server/` | Discovery |
+| `/.well-known/jwks.json/` | Public signing key |
+| `/oauth/authorize/` | Authorization endpoint (reads the `op_session` cookie) |
+| `/oauth/token/`, `/oauth/revoke/`, `/oauth/introspect/` | Token endpoints |
+| `/oauth/userinfo/` | Profile claims (Bearer token) |
+| `/oauth/end-session/` | RP-initiated logout (clears `op_session`) |
+| `/consent/` | Consent page for clients that are not first party |
+| `/api/admin/clients/`, `/api/admin/clients/{clientId}/` | Client administration (admin only) |
+| `/api/account/grants/`, `/api/account/grants/{clientId}/` | List and revoke the user's grants |
+
+`post_logout_redirect_uri` on end-session must exactly match a registered
+redirect URI for the given `client_id` (register the RP login URL too).
+
+Every request needs PKCE (`S256`). A client with a secret authenticates with
+HTTP Basic; one without is a public client. First-party clients skip consent.
+`prompt=none` answers `login_required` or `consent_required` instead of showing
+a page. Redirect URIs live in `OAuthClientRedirectUri` and must match exactly.
+
+| Variable | Required | Notes |
+|----------|----------|-------|
+| `OAUTH_SIGNING_KEY` | yes | RSA private key (PEM, 2048 bits or more) that signs tokens |
+| `OAUTH_ISSUER` | optional | `iss` of tokens. Default: `PUBLIC_ORIGIN` |
+| `OAUTH_AUDIENCE` | optional | `aud` of access tokens. Default: `PUBLIC_ORIGIN` |
+| `OAUTH_RESOURCE_SERVERS` | optional | `id:secret,id:secret` allowed to introspect. None set: nobody may |
+| `IDENTITY_ADMIN_EMAILS` | optional | Verified admin emails or `@domain` suffixes for `/api/admin/clients/` |
+
 ## Database
 
 The service has its own Postgres database. It has no foreign keys to
@@ -97,7 +128,7 @@ The values are not committed. For local development any values work.
 `docker compose` stops with a clear message if they are blank.
 
 Tables: `User` (credentials and 2FA only), `Session`, `EmailToken`,
-`LoginRateLimit`, `OAuthClient`, `OAuthClientI18N`, `OAuthClientAuthz`,
+`LoginRateLimit`, `OAuthClient`, `OAuthClientI18N`, `OAuthClientRedirectUri`, `OAuthClientAuthz`,
 `AuthorizationCode`, `RefreshToken`, `SigningKey`.
 Authorization codes, refresh tokens, and session/email tokens are stored as
 SHA-256 hashes. The private signing key is never stored in the database.

@@ -1,32 +1,14 @@
-"use client";
+import { redirect } from "next/navigation";
+import SessionService from "@/backend/SessionService";
+import { HomeUnauthenticated } from "./HomeUnauthenticated";
 
-import { Button, Card } from "@oef/gds-react";
-import Link from "next/link";
-
-export default function HomePage() {
-  return (
-    <div className="auth-shell">
-      <Card
-        className="auth-card"
-        elevated
-        eyebrow="CityCatalyst Identity"
-        title="Sign in to continue"
-        footer={
-          <div className="auth-footer">
-            <Link href="/signup/">Create an account</Link>
-          </div>
-        }
-      >
-        <p className="auth-lead">
-          Credential login, 2FA, and account flows for the GCoM Digital Service.
-        </p>
-        <Button
-          className="auth-submit"
-          render={<Link href="/login/" />}
-        >
-          Sign in
-        </Button>
-      </Card>
-    </div>
-  );
+/**
+ * Signed-in users land on account security; everyone else sees the CTA.
+ */
+export default async function HomePage() {
+  const session = await SessionService.current();
+  if (session) {
+    redirect("/account/security/");
+  }
+  return <HomeUnauthenticated />;
 }

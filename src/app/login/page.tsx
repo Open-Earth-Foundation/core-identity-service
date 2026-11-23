@@ -1,89 +1,18 @@
-"use client";
+import { redirect } from "next/navigation";
+import SessionService from "@/backend/SessionService";
+import { safeReturnTo } from "@/lib/safe-return-to";
+import LoginForm from "./LoginForm";
 
-import { TextField } from "@oef/gds-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { AuthCard, AuthSubmit, formValues, postJson } from "@/components/AuthCard";
+type Props = {
+  searchParams: Promise<{ returnTo?: string }>;
+};
 
-export default function LoginPage() {
-  const router = useRouter();
-
-  return (
-    <AuthCard
-      title="Sign in"
-      lead="Use your email and password. If you use an authenticator, enter the code too."
-      footer={
-        <>
-          <Link href="/signup/">Create an account</Link>
-          <Link href="/forgot-password/">Forgot password</Link>
-        </>
-      }
-    >
-      {({ csrfToken, setError, busy, setBusy }) => (
-        <form
-          className="auth-form"
-          onSubmit={async (event) => {
-            event.preventDefault();
-            setError("");
-            setBusy(true);
-            const values = formValues(event);
-            try {
-              const check = await fetch(
-                `/api/auth/2fa/status/?email=${encodeURIComponent(values.email || "")}`,
-                { credentials: "include" },
-              );
-              const status = (await check.json()) as {
-                data?: { enabled?: boolean };
-              };
-              if (status.data?.enabled && !values.securityToken) {
-                setError("Enter your authenticator or recovery code.");
-                setBusy(false);
-                return;
-              }
-
-              const result = await postJson("/api/auth/login/", {
-                ...values,
-                csrfToken,
-              });
-              if (!result.ok) {
-                const err = result.data.error as { message?: string } | undefined;
-                setError(err?.message || "Sign-in failed.");
-                setBusy(false);
-                return;
-              }
-              router.push("/account/security/");
-            } catch {
-              setError("Sign-in failed.");
-              setBusy(false);
-            }
-          }}
-        >
-          <TextField
-            label="Email"
-            name="email"
-            type="email"
-            required
-            autoComplete="username"
-          />
-          <TextField
-            label="Password"
-            name="password"
-            type="password"
-            required
-            autoComplete="current-password"
-          />
-          <TextField
-            label="Authenticator or recovery code"
-            name="securityToken"
-            type="text"
-            autoComplete="one-time-code"
-            description="Only if two-factor authentication is enabled"
-          />
-          <AuthSubmit busy={busy} disabled={!csrfToken}>
-            {busy ? "Signing in…" : "Sign in"}
-          </AuthSubmit>
-        </form>
-      )}
-    </AuthCard>
-  );
+/** Already signed-in users skip the form and resume OAuth / account. */
+export default async function LoginPage({ searchParams }: Props) {
+  const session = await SessionService.current();
+  if (session) {
+    const params = await searchParams;
+    redirect(safeReturnTo(params.returnTo));
+  }
+  return <LoginForm />;
 }

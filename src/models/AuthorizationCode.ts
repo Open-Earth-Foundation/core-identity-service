@@ -16,12 +16,14 @@ export interface AuthorizationCodeAttributes {
   expires: Date;
   /** Set when the code is exchanged. A second exchange is a replay. */
   consumedAt?: Date | null;
+  /** Refresh-token family this code starts. Set when the code is issued. */
+  familyId?: string | null;
   created?: Date;
 }
 
 export type AuthorizationCodeCreationAttributes = Optional<
   AuthorizationCodeAttributes,
-  "codeChallengeMethod" | "nonce" | "consumedAt" | "created"
+  "codeChallengeMethod" | "nonce" | "consumedAt" | "familyId" | "created"
 >;
 
 export class AuthorizationCode
@@ -41,6 +43,7 @@ export class AuthorizationCode
   declare nonce: string | null;
   declare expires: Date;
   declare consumedAt: Date | null;
+  declare familyId: string | null;
   declare created: Date;
 
   static initModel(sequelize: Sequelize): typeof AuthorizationCode {
@@ -81,6 +84,11 @@ export class AuthorizationCode
           type: DataTypes.DATE,
           allowNull: true,
           field: "consumed_at",
+        },
+        familyId: {
+          type: DataTypes.UUID,
+          allowNull: true,
+          field: "family_id",
         },
         created: {
           type: DataTypes.DATE,

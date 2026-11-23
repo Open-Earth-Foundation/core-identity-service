@@ -9,7 +9,7 @@ export default function CheckEmailPage() {
       <Card
         className="auth-card"
         elevated
-        eyebrow="CityCatalyst Identity"
+        eyebrow="OpenEarth Identity"
         title="Check your email"
         footer={
           <div className="auth-footer">

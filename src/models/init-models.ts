@@ -5,6 +5,7 @@ import { LoginRateLimit } from "./LoginRateLimit";
 import { OAuthClient } from "./OAuthClient";
 import { OAuthClientAuthz } from "./OAuthClientAuthz";
 import { OAuthClientI18N } from "./OAuthClientI18N";
+import { OAuthClientRedirectUri } from "./OAuthClientRedirectUri";
 import { RefreshToken } from "./RefreshToken";
 import { Session } from "./Session";
 import { SigningKey } from "./SigningKey";
@@ -17,6 +18,7 @@ export {
   OAuthClient,
   OAuthClientAuthz,
   OAuthClientI18N,
+  OAuthClientRedirectUri,
   RefreshToken,
   Session,
   SigningKey,
@@ -28,6 +30,7 @@ export function initModels(sequelize: Sequelize) {
   User.initModel(sequelize);
   OAuthClient.initModel(sequelize);
   OAuthClientI18N.initModel(sequelize);
+  OAuthClientRedirectUri.initModel(sequelize);
   OAuthClientAuthz.initModel(sequelize);
   AuthorizationCode.initModel(sequelize);
   RefreshToken.initModel(sequelize);
@@ -40,6 +43,15 @@ export function initModels(sequelize: Sequelize) {
   // The database foreign keys do the deleting, so no onDelete is repeated here.
   OAuthClient.hasMany(OAuthClientI18N, { as: "i18n", foreignKey: "clientId" });
   OAuthClientI18N.belongsTo(OAuthClient, {
+    as: "client",
+    foreignKey: "clientId",
+  });
+
+  OAuthClient.hasMany(OAuthClientRedirectUri, {
+    as: "redirectUris",
+    foreignKey: "clientId",
+  });
+  OAuthClientRedirectUri.belongsTo(OAuthClient, {
     as: "client",
     foreignKey: "clientId",
   });
@@ -69,6 +81,7 @@ export function initModels(sequelize: Sequelize) {
     OAuthClient,
     OAuthClientAuthz,
     OAuthClientI18N,
+    OAuthClientRedirectUri,
     RefreshToken,
     Session,
     SigningKey,
