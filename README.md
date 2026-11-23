@@ -90,9 +90,13 @@ Login is rate-limited to **5 attempts per email per 15 minutes** via
 | `/oauth/authorize/` | Authorization endpoint (reads the `op_session` cookie) |
 | `/oauth/token/`, `/oauth/revoke/`, `/oauth/introspect/` | Token endpoints |
 | `/oauth/userinfo/` | Profile claims (Bearer token) |
+| `/oauth/end-session/` | RP-initiated logout (clears `op_session`) |
 | `/consent/` | Consent page for clients that are not first party |
 | `/api/admin/clients/`, `/api/admin/clients/{clientId}/` | Client administration (admin only) |
 | `/api/account/grants/`, `/api/account/grants/{clientId}/` | List and revoke the user's grants |
+
+`post_logout_redirect_uri` on end-session must exactly match a registered
+redirect URI for the given `client_id` (register the RP login URL too).
 
 Every request needs PKCE (`S256`). A client with a secret authenticates with
 HTTP Basic; one without is a public client. First-party clients skip consent.

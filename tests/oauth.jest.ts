@@ -60,6 +60,7 @@ describe("discovery document (no DB)", () => {
     expect(doc.userinfo_endpoint).toBe(`${ISSUER}/oauth/userinfo/`);
     expect(doc.revocation_endpoint).toBe(`${ISSUER}/oauth/revoke/`);
     expect(doc.introspection_endpoint).toBe(`${ISSUER}/oauth/introspect/`);
+    expect(doc.end_session_endpoint).toBe(`${ISSUER}/oauth/end-session/`);
     expect(doc.jwks_uri).toBe(`${ISSUER}/.well-known/jwks.json/`);
     expect(doc.code_challenge_methods_supported).toEqual(["S256"]);
   });

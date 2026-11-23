@@ -17,6 +17,7 @@ export function buildDiscoveryDocument(issuer: string) {
     userinfo_endpoint: `${issuer}/oauth/userinfo/`,
     revocation_endpoint: `${issuer}/oauth/revoke/`,
     introspection_endpoint: `${issuer}/oauth/introspect/`,
+    end_session_endpoint: `${issuer}/oauth/end-session/`,
     jwks_uri: `${issuer}/.well-known/jwks.json/`,
     scopes_supported: ["openid", "read", "write"],
     response_types_supported: ["code"],
