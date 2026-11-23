@@ -2,12 +2,9 @@
 
 import { TextField } from "@oef/gds-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { AuthCard, AuthSubmit, formValues, postJson } from "@/components/AuthCard";
 
 export default function LoginPage() {
-  const router = useRouter();
-
   return (
     <AuthCard
       title="Sign in"
@@ -51,7 +48,21 @@ export default function LoginPage() {
                 setBusy(false);
                 return;
               }
-              router.push("/account/security/");
+              // returnTo brings the user back to /oauth/authorize or /consent
+              // after login. Only a path on this site is accepted, so the
+              // login page cannot be used to redirect elsewhere.
+              const returnTo = new URLSearchParams(window.location.search).get(
+                "returnTo",
+              );
+              const safeReturn =
+                returnTo &&
+                returnTo.startsWith("/") &&
+                !returnTo.startsWith("//") &&
+                !returnTo.startsWith("/\\")
+                  ? returnTo
+                  : "/account/security/";
+              // A full navigation: /oauth/authorize is a route handler, not a page.
+              window.location.assign(safeReturn);
             } catch {
               setError("Sign-in failed.");
               setBusy(false);

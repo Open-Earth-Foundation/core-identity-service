@@ -70,6 +70,14 @@ export default class SessionService {
     };
   }
 
+  /** Reads the request cookie and returns the signed-in user, or null. */
+  public static async current(): Promise<
+    (SessionUser & { session: Session }) | null
+  > {
+    const jar = await cookies();
+    return SessionService.resolve(jar.get(SESSION_COOKIE)?.value);
+  }
+
   /** Reads the request cookie and returns the signed-in user, or throws 401. */
   public static async requireUser(): Promise<SessionUser & { user: User }> {
     const jar = await cookies();

@@ -3,14 +3,22 @@ import { DataTypes, Model, Optional, Sequelize } from "sequelize";
 /** A registered OAuth 2.0 / OIDC client. */
 export interface OAuthClientAttributes {
   clientId: string;
+  /**
+   * Copy of the first registered redirect URI. The source of truth is
+   * OAuthClientRedirectUri. This column goes away in a later migration.
+   */
   redirectURI: string;
+  /** Hex SHA-256 of the client secret. Null for a public client (PKCE only). */
+  clientSecretHash?: string | null;
+  /** First-party clients skip the consent screen. */
+  firstParty: boolean;
   created?: Date;
   lastUpdated?: Date;
 }
 
 export type OAuthClientCreationAttributes = Optional<
   OAuthClientAttributes,
-  "created" | "lastUpdated"
+  "clientSecretHash" | "firstParty" | "created" | "lastUpdated"
 >;
 
 export class OAuthClient
@@ -19,6 +27,8 @@ export class OAuthClient
 {
   declare clientId: string;
   declare redirectURI: string;
+  declare clientSecretHash: string | null;
+  declare firstParty: boolean;
   declare created: Date;
   declare lastUpdated: Date;
 
@@ -34,8 +44,18 @@ export class OAuthClient
         redirectURI: {
           type: DataTypes.STRING(2048),
           allowNull: false,
-          unique: true,
           field: "redirect_uri",
+        },
+        clientSecretHash: {
+          type: DataTypes.CHAR(64),
+          allowNull: true,
+          field: "client_secret_hash",
+        },
+        firstParty: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+          field: "first_party",
         },
       },
       {
